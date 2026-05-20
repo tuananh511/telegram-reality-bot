@@ -45,7 +45,7 @@ Nếu không có gì đặc biệt, trả về đúng chữ: NONE
 """
     try:
         event_response = client.models.generate_content(
-            model="gemini-2.5-flash-lite",
+            model="gemini-3.1-flash-lite",
             contents=event_prompt
         )
         result = event_response.text.strip()
