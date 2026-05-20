@@ -17,9 +17,13 @@ try:
 except:
     used_messages = []
 
-hour_vn = (datetime.now(timezone.utc) + timedelta(hours=7)).hour
+now_vn = datetime.now(timezone.utc) + timedelta(hours=7)
+hour_vn = now_vn.hour
+date_str = now_vn.strftime("%d/%m/%Y")
+
 print("START BOT")
 print("HOUR VN:", hour_vn)
+print("DATE VN:", date_str)
 
 if not (7 <= hour_vn <= 20):
     print("OUTSIDE TIME WINDOW")
@@ -29,6 +33,27 @@ if not (7 <= hour_vn <= 20):
 if random.random() < 0.5:
     print("SKIPPED (50% chance)")
     exit()
+
+# Check sự kiện đặc biệt hôm nay (chỉ gửi 1 lần, buổi sáng)
+special_event = None
+if 7 <= hour_vn <= 9:
+    event_prompt = f"""
+Hôm nay là {date_str}. 
+Có sự kiện đặc biệt nào không (lễ tết Việt Nam, ngày lễ quốc tế, ngày kỷ niệm lớn)?
+Nếu có, trả về đúng 1 dòng ngắn gọn dưới 15 từ, tiếng Việt. Ví dụ: "Hôm nay là Tết Trung Thu 🌕"
+Nếu không có gì đặc biệt, trả về đúng chữ: NONE
+"""
+    try:
+        event_response = client.models.generate_content(
+            model="gemini-2.5-flash-lite",
+            contents=event_prompt
+        )
+        result = event_response.text.strip()
+        if result != "NONE" and len(result) > 3:
+            special_event = result
+            print("SPECIAL EVENT:", special_event)
+    except Exception as e:
+        print("EVENT CHECK ERROR:", e)
 
 categories = [
     "stoicism",
@@ -62,7 +87,6 @@ try:
 
     raw = response.text.strip()
 
-    # Validate format cơ bản
     if "—" not in raw or len(raw) < 20:
         print("INVALID FORMAT")
         exit()
@@ -77,12 +101,17 @@ try:
     with open("used_messages.json", "w", encoding="utf-8") as f:
         json.dump(used_messages, f, ensure_ascii=False, indent=2)
 
+    # Ghép sự kiện vào tin nhắn nếu có
+    final_text = raw
+    if special_event:
+        final_text = f"{special_event}\n\n{raw}"
+
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
     res = requests.post(url, json={
         "chat_id": CHAT_ID,
-        "text": raw
+        "text": final_text
     })
-    print("SENT:", raw)
+    print("SENT:", final_text)
     print("TELEGRAM:", res.status_code, res.text)
 
 except Exception as e:
