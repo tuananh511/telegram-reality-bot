@@ -25,26 +25,31 @@ if not (7 <= hour_vn <= 20):
     print("OUTSIDE TIME WINDOW")
     exit()
 
+# 50% xác suất gửi
+if random.random() < 0.5:
+    print("SKIPPED (50% chance)")
+    exit()
+
 categories = [
-    "anti overthinking",
-    "financial awareness",
-    "discipline",
-    "systems thinking",
-    "anti procrastination",
-    "reality check"
+    "stoicism",
+    "discipline and focus",
+    "reality and self-awareness",
+    "wealth and ambition",
+    "time and priorities",
+    "mental toughness"
 ]
 
 category = random.choice(categories)
 prompt = f"""
-Viết 10 câu ngắn tiếng Việt.
+Tìm 1 câu châm ngôn nổi tiếng bằng tiếng Anh, có trích dẫn rõ tên người nói.
 Category: {category}
 Yêu cầu:
-- dưới 18 từ
-- thực tế, logic
-- không motivational rác
-- không emoji
-- không dấu !
-- tránh từ sáo rỗng
+- Dịch câu đó sang tiếng Việt, tự nhiên, không cứng nhắc
+- Giữ tên người nói bằng tiếng Anh
+- Format trả về đúng như sau, không thêm gì khác:
+"[câu tiếng Việt]" — [Tên người nói]
+Ví dụ:
+"Chúng ta khổ sở không phải vì sự việc, mà vì cách ta nhìn nhận nó." — Marcus Aurelius
 """
 
 try:
@@ -55,34 +60,18 @@ try:
     print("RAW RESPONSE:")
     print(response.text)
 
-    raw_lines = response.text.split("\n")
-    candidates = []
-    banned_words = [
-        "vũ trụ", "ánh sáng", "niềm tin",
-        "ước mơ", "thành công", "tỏa sáng",
-        "✨", "🔥", "❤️"
-    ]
+    raw = response.text.strip()
 
-    for line in raw_lines:
-        clean = line.strip("-•1234567890. ").strip()
-        if len(clean) < 10:
-            continue
-        if len(clean) > 80:
-            continue
-        if clean in used_messages:
-            continue
-        if any(w in clean.lower() for w in banned_words):
-            continue
-        candidates.append(clean)
-
-    print("CANDIDATES COUNT:", len(candidates))
-
-    if not candidates:
-        print("NO VALID MESSAGE")
+    # Validate format cơ bản
+    if "—" not in raw or len(raw) < 20:
+        print("INVALID FORMAT")
         exit()
 
-    final_message = random.choice(candidates)
-    used_messages.append(final_message)
+    if raw in used_messages:
+        print("DUPLICATE")
+        exit()
+
+    used_messages.append(raw)
     used_messages = used_messages[-200:]
 
     with open("used_messages.json", "w", encoding="utf-8") as f:
@@ -91,9 +80,9 @@ try:
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
     res = requests.post(url, json={
         "chat_id": CHAT_ID,
-        "text": final_message
+        "text": raw
     })
-    print("SENT:", final_message)
+    print("SENT:", raw)
     print("TELEGRAM:", res.status_code, res.text)
 
 except Exception as e:
