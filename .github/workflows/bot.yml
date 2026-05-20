@@ -2,8 +2,9 @@ name: Reality Bot
 
 on:
   schedule:
-    - cron: '0 * * * *'
+    - cron: "*/10 * * * *"
   workflow_dispatch:
+  push:
 
 jobs:
   run-bot:
