@@ -5,6 +5,10 @@ import requests
 import google.generativeai as genai
 from datetime import datetime
 
+print("START BOT")
+print("RAW:", response.text)
+print("CANDIDATES:", len(candidates))
+
 # =========================
 # ENV
 # =========================
