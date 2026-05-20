@@ -39,7 +39,7 @@ print("START BOT")
 print("HOUR VN:", hour_vn)
 print("DATE:", date_str)
 
-# CHẶN 23H - 8H
+# 23h - 8h stop
 if hour_vn >= 23 or hour_vn < 8:
     print("SLEEP WINDOW")
     exit()
@@ -49,14 +49,14 @@ if hour_vn >= 23 or hour_vn < 8:
 # =========================
 
 special_event = None
+event_key = date_str
+
 event_prompt = f"""
 Hôm nay là {date_str}.
 Có sự kiện đặc biệt nào không (lễ tết Việt Nam, quốc tế, kỷ niệm lớn)?
 Nếu có: 1 dòng ngắn <15 từ tiếng Việt.
 Nếu không: NONE
 """
-
-event_key = date_str
 
 if event_key not in event_sent:
     try:
@@ -75,12 +75,11 @@ if event_key not in event_sent:
     except Exception as e:
         print("EVENT ERROR:", e)
 
-# save event state
 with open("event_sent.json", "w", encoding="utf-8") as f:
     json.dump(event_sent, f, ensure_ascii=False, indent=2)
 
 # =========================
-# QUOTE GENERATION
+# QUOTE
 # =========================
 
 categories = [
@@ -101,7 +100,7 @@ Category: {category}
 Yêu cầu:
 - Dịch sang tiếng Việt tự nhiên
 - Giữ tên người nói bằng tiếng Anh
-- Format đúng:
+- Format:
 "[câu tiếng Việt]" — [Tên người nói]
 """
 
@@ -129,7 +128,7 @@ try:
         json.dump(used_messages, f, ensure_ascii=False, indent=2)
 
     # =========================
-    # SEND LOGIC
+    # SEND DECISION
     # =========================
 
     force_send = special_event is not None
@@ -138,15 +137,35 @@ try:
         print("SKIP QUOTE")
         exit()
 
-    final_text = raw
+    # =========================
+    # UI BUILD
+    # =========================
 
-    if special_event:
-        final_text = f"{special_event}\n\n{raw}"
+    def build_message(event, quote):
+        parts = []
+
+        if event:
+            parts.append(f"🔥 *SỰ KIỆN HÔM NAY*\n{event}")
+
+        parts.append(f"💭 *CHÂM NGÔN*\n{quote}")
+
+        parts.append("━━━━━━━━━━━━")
+        parts.append(f"📅 {date_str}")
+
+        return "\n\n".join(parts)
+
+    final_text = build_message(special_event, raw)
+
+    # =========================
+    # SEND TELEGRAM
+    # =========================
 
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+
     res = requests.post(url, json={
         "chat_id": CHAT_ID,
-        "text": final_text
+        "text": final_text,
+        "parse_mode": "Markdown"
     })
 
     print("SENT:", final_text)
