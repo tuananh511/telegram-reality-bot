@@ -86,3 +86,5 @@ Tự động hóa nội dung tinh gọn hằng ngày
 Tạo hệ thống “daily mental reset” nhẹ, không spam
 Chi phí = 0 (serverless hoàn toàn trên GitHub Actions)
 Dễ mở rộng thêm quote, habit tracking, hoặc personal assistant layer
+
+##Lưu ý: do chưa có VPS nên code chỉ nên fork chứ không thể dùng cho nhiều người.
