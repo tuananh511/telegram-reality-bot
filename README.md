@@ -1,4 +1,4 @@
-# Daily Quote Telegram Bot
+# Daily Quote Telegram Bot 
 
 Bot Telegram tự động gửi những đoạn quote ngắn bằng tiếng Việt mang cảm giác sâu lắng, trưởng thành và đời thực — giống các caption chữa lành, suy ngẫm về cuộc sống, gia đình, cô đơn, thời gian và hành trình trưởng thành.
 
