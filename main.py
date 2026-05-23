@@ -5,6 +5,10 @@ import requests
 from google import genai
 from datetime import datetime, timezone, timedelta
 
+# =========================
+# ENV
+# =========================
+
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
@@ -39,7 +43,7 @@ print("START BOT")
 print("HOUR VN:", hour_vn)
 print("DATE:", date_str)
 
-# 23h -> 8h stop
+# 23:00 -> 08:00 ngủ
 if hour_vn >= 23 or hour_vn < 8:
     print("SLEEP WINDOW")
     exit()
@@ -53,11 +57,15 @@ event_key = date_str
 
 event_prompt = f"""
 Hôm nay là {date_str}.
-Có sự kiện đặc biệt nào không (lễ tết Việt Nam, quốc tế, kỷ niệm lớn)?
 
-Nếu có:
-- trả về đúng 1 dòng ngắn bằng tiếng Việt
+Có sự kiện đặc biệt nào không
+(lễ tết Việt Nam, ngày quốc tế, ngày kỷ niệm lớn)?
+
+Yêu cầu:
+- đúng 1 dòng ngắn
 - dưới 15 từ
+- tự nhiên
+- có thể thêm emoji nhẹ nếu phù hợp
 
 Nếu không có:
 NONE
@@ -71,7 +79,9 @@ if event_key not in event_sent:
         )
 
         result = event_response.text.strip()
-        print("EVENT RAW:", result)
+
+        print("EVENT RAW:")
+        print(result)
 
         if result != "NONE" and len(result) > 3:
             special_event = result
@@ -80,6 +90,7 @@ if event_key not in event_sent:
     except Exception as e:
         print("EVENT ERROR:", e)
 
+# save state
 with open("event_sent.json", "w", encoding="utf-8") as f:
     json.dump(event_sent, f, ensure_ascii=False, indent=2)
 
@@ -87,8 +98,31 @@ with open("event_sent.json", "w", encoding="utf-8") as f:
 # QUOTE GENERATION
 # =========================
 
+themes = [
+    "gia đình",
+    "sự trưởng thành",
+    "cô đơn",
+    "đàn ông trưởng thành",
+    "sự tử tế",
+    "bình yên",
+    "áp lực cuộc sống",
+    "sự cố gắng âm thầm",
+    "thời gian",
+    "tuổi trẻ",
+    "chữa lành",
+    "sự mất mát",
+    "tình thân",
+    "sự kiên trì",
+    "những ngày mệt mỏi",
+]
+
+theme = random.choice(themes)
+
 prompt = f"""
 Hãy viết 1 đoạn quote ngắn bằng tiếng Việt.
+
+Chủ đề hôm nay:
+{theme}
 
 Vibe:
 - trưởng thành
@@ -98,39 +132,55 @@ Vibe:
 - đàn ông trưởng thành
 - gia đình
 - cô đơn
-- sự cố gắng âm thầm
 - chữa lành
+- sự cố gắng âm thầm
 - bình yên
 - áp lực cuộc sống
 - hành trình lớn lên
 
 Phong cách giống:
 - caption Facebook sâu lắng
-- kiểu viết của những người từng trải
-- tự nhiên như suy nghĩ thật
+- suy nghĩ thật của người từng trải
+- viết tự nhiên
 - không triết lý sách vở
+- giống một người thật đang suy ngẫm
 
 Yêu cầu:
 - KHÔNG quote nổi tiếng
 - KHÔNG motivational sáo rỗng
-- KHÔNG kiểu dạy đời
+- KHÔNG dạy đời
 - KHÔNG hashtag
 - KHÔNG emoji
 - tối đa 5 dòng
 - ngắn gọn
-- đọc phải có cảm giác thật
+- phải tạo cảm giác chân thật
+- wording tự nhiên như status Facebook chất lượng
+
+TRÁNH:
+- lặp ý tưởng cũ
+- các câu kiểu "hãy cố gắng"
+- productivity mindset
+- self-help cliché
 
 Ví dụ vibe:
 
+"Áp lực lớn nhất của đàn ông,
+nhiều khi là phải tỏ ra
+mình vẫn ổn."
+
+hoặc:
+
 "Rồi sẽ có lúc bạn nhận ra...
 thứ mình cần nhất
-không phải là hơn thua,
+không phải hơn thua,
 mà là một nơi để quay về."
 
 hoặc:
 
-"Áp lực lớn nhất của đàn ông,
-nhiều khi là phải tỏ ra mình vẫn ổn."
+"Đi nhiều rồi mới hiểu,
+thứ khiến người ta mệt nhất
+không phải công việc,
+mà là lòng mình."
 
 Chỉ trả về đúng nội dung quote.
 """
@@ -146,12 +196,15 @@ try:
     print("QUOTE RAW:")
     print(raw)
 
-    # validation
+    # =========================
+    # VALIDATION
+    # =========================
+
     if len(raw) < 20:
         print("INVALID")
         exit()
 
-    # duplicate check
+    # chống trùng exact wording
     if raw in used_messages:
         print("DUPLICATE")
         exit()
@@ -162,7 +215,12 @@ try:
     used_messages = used_messages[-100:]
 
     with open("used_messages.json", "w", encoding="utf-8") as f:
-        json.dump(used_messages, f, ensure_ascii=False, indent=2)
+        json.dump(
+            used_messages,
+            f,
+            ensure_ascii=False,
+            indent=2
+        )
 
     # =========================
     # SEND DECISION
@@ -170,7 +228,7 @@ try:
 
     force_send = special_event is not None
 
-    # nếu không có event -> random 50%
+    # không có event -> random 50%
     if not force_send and random.random() < 0.5:
         print("SKIP RANDOM")
         exit()
@@ -183,22 +241,30 @@ try:
         parts = []
 
         if event:
-            parts.append(f"🔥 *SỰ KIỆN HÔM NAY*\n{event}")
+            parts.append(
+                f"🔥 *SỰ KIỆN HÔM NAY*\n{event}"
+            )
 
-        parts.append(f"{quote}")
+        parts.append(quote)
 
         parts.append("━━━━━━━━━━━━")
         parts.append(f"📅 {date_str}")
 
         return "\n\n".join(parts)
 
-    final_text = build_message(special_event, raw)
+    final_text = build_message(
+        special_event,
+        raw
+    )
 
     # =========================
     # SEND TELEGRAM
     # =========================
 
-    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+    url = (
+        f"https://api.telegram.org/"
+        f"bot{BOT_TOKEN}/sendMessage"
+    )
 
     res = requests.post(
         url,
@@ -212,7 +278,11 @@ try:
     print("SENT:")
     print(final_text)
 
-    print("TELEGRAM:", res.status_code, res.text)
+    print(
+        "TELEGRAM:",
+        res.status_code,
+        res.text
+    )
 
 except Exception as e:
     print("ERROR:", e)
