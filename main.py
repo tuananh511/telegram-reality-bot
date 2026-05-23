@@ -88,41 +88,49 @@ with open("event_sent.json", "w", encoding="utf-8") as f:
 # =========================
 
 prompt = f"""
-Hãy viết 1 đoạn quote ngắn bằng tiếng Việt mang cảm giác sâu lắng, trưởng thành, đời thực.
+Hãy viết 1 đoạn quote ngắn bằng tiếng Việt.
 
-Phong cách giống:
-- những caption chữa lành
-- suy ngẫm về cuộc sống
+Vibe:
+- trưởng thành
+- từng trải
+- nhẹ nhưng thấm
+- đời thực
+- đàn ông trưởng thành
 - gia đình
 - cô đơn
-- hành trình trưởng thành
-- kỷ luật
-- sự mất mát
-- bình yên
-- thời gian
 - sự cố gắng âm thầm
+- chữa lành
+- bình yên
+- áp lực cuộc sống
+- hành trình lớn lên
+
+Phong cách giống:
+- caption Facebook sâu lắng
+- kiểu viết của những người từng trải
+- tự nhiên như suy nghĩ thật
+- không triết lý sách vở
 
 Yêu cầu:
-- KHÔNG được dùng quote nổi tiếng phổ biến
-- KHÔNG được viết kiểu triết lý sáo rỗng
-- KHÔNG được dùng các câu quá viral
-- wording tự nhiên như người từng trải viết
-- ngắn gọn, dễ đọc trên ảnh
-- tối đa 4 dòng
-- không hashtag
-- không emoji
-- không giải thích
+- KHÔNG quote nổi tiếng
+- KHÔNG motivational sáo rỗng
+- KHÔNG kiểu dạy đời
+- KHÔNG hashtag
+- KHÔNG emoji
+- tối đa 5 dòng
+- ngắn gọn
+- đọc phải có cảm giác thật
 
 Ví dụ vibe:
 
-"Khi lớn lên, bạn bắt đầu hiểu...
-ba mẹ cũng chỉ là những người lần đầu làm cha mẹ."
+"Rồi sẽ có lúc bạn nhận ra...
+thứ mình cần nhất
+không phải là hơn thua,
+mà là một nơi để quay về."
 
 hoặc:
 
-"Đi rất xa mới hiểu,
-nơi muốn quay về nhất
-vẫn là nhà."
+"Áp lực lớn nhất của đàn ông,
+nhiều khi là phải tỏ ra mình vẫn ổn."
 
 Chỉ trả về đúng nội dung quote.
 """
