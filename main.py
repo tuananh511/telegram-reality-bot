@@ -49,13 +49,13 @@ if hour_vn >= 23 or hour_vn < 8:
     exit()
 
 # =========================
-# EVENT CHECK
+#  CHECK
 # =========================
 
-special_event = None
-event_key = date_str
+special_ = None
+_key = date_str
 
-event_prompt = f"""
+_prompt = f"""
 Hôm nay là {date_str}.
 
 Có sự kiện đặc biệt nào không
@@ -71,21 +71,21 @@ Nếu không có:
 NONE
 """
 
-if event_key not in event_sent:
+if _key not in _sent:
     try:
-        event_response = client.models.generate_content(
+        _response = client.models.generate_content(
             model="gemini-3.1-flash-lite",
-            contents=event_prompt
+            contents=_prompt
         )
 
-        result = event_response.text.strip()
+        result = _response.text.strip()
 
-        print("EVENT RAW:")
+        print(" RAW:")
         print(result)
 
         if result != "NONE" and len(result) > 3:
-            special_event = result
-            event_sent[event_key] = True
+            special_ = result
+            _sent[_key] = True
 
     except Exception as e:
         print("EVENT ERROR:", e)
@@ -229,7 +229,7 @@ try:
     force_send = special_event is not None
 
     # không có event -> random 50%
-    if not force_send and random.random() < 0.5:
+    if not force_send and random.random() < 0.8:
         print("SKIP RANDOM")
         exit()
 
