@@ -74,7 +74,7 @@ Kiểm tra event trong ngày.
 - Kiểm tra duplicate.
 Quyết định gửi:
 - Có event → luôn gửi.
-- Không có event → random 20%.
+- Không có event → random 15%.
 
 State được lưu bằng JSON:
 
