@@ -40,6 +40,7 @@ print("HOUR VN:", hour_vn)
 print("DATE:", date_str)
 
 # 23h -> 8h stop
+
 if hour_vn >= 23 or hour_vn < 8:
     print("SLEEP WINDOW")
     exit()
@@ -67,7 +68,9 @@ NONE
 """
 
 if event_key not in event_sent:
+
     try:
+
         event_response = client.models.generate_content(
             model="gemini-3.1-flash-lite",
             contents=event_prompt
@@ -94,20 +97,35 @@ with open("event_sent.json", "w", encoding="utf-8") as f:
 
 themes = [
     "gia đình",
-    "trưởng thành",
-    "đàn ông",
-    "cô đơn",
-    "áp lực cuộc sống",
+    "tuổi thơ",
+    "tình bạn",
     "sự tử tế",
+    "bình yên",
+    "trưởng thành",
     "thời gian",
     "tuổi trẻ",
-    "sự cố gắng âm thầm",
-    "bình yên",
     "chữa lành",
-    "mất mát",
+    "một ngày bình thường",
+    "niềm vui nhỏ",
+    "cảm giác được về nhà",
+    "sự cố gắng âm thầm",
     "hành trình lớn lên",
-    "trách nhiệm",
-    "đêm khuya và suy nghĩ"
+    "đêm khuya và suy nghĩ",
+    "cà phê và cuộc sống",
+    "những người đã từng gặp",
+    "sự biết ơn",
+    "những điều giản dị",
+    "sự cô đơn",
+    "áp lực cuộc sống",
+    "mất mát",
+    "hy vọng",
+    "sự nhẹ nhõm",
+    "những ngày mệt mỏi",
+    "mùa mưa",
+    "thành phố về đêm",
+    "những cuộc trò chuyện ngắn",
+    "sự bình tĩnh",
+    "những điều không còn như trước"
 ]
 
 theme = random.choice(themes)
@@ -119,27 +137,27 @@ theme = random.choice(themes)
 prompt = f"""
 Hãy viết 1 đoạn quote ngắn bằng tiếng Việt.
 
-Vibe chính hôm nay:
+Theme hôm nay:
 {theme}
 
 Phong cách:
-- trưởng thành
-- từng trải
+- tự nhiên
 - đời thực
-- sâu nhưng tự nhiên
-- hơi giống caption Facebook hay
-- cảm giác thật, không sách vở
+- cảm xúc nhẹ
+- đôi khi sâu lắng
+- đôi khi bình yên
+- đôi khi tích cực
+- giống một suy nghĩ thật trong cuộc sống
+- không cần lúc nào cũng buồn
 
 Tone tham khảo:
-- gia đình
-- cô đơn
-- đàn ông trưởng thành
-- sự cố gắng âm thầm
-- áp lực cuộc sống
-- chữa lành
-- bình yên
-- thời gian
-- hành trình lớn lên
+- caption Facebook sâu lắng
+- suy nghĩ trong đêm
+- một điều nhận ra sau nhiều năm
+- một khoảnh khắc nhỏ trong cuộc sống
+- cảm giác trưởng thành dần
+- sự tử tế
+- những điều giản dị
 
 Yêu cầu:
 
@@ -147,24 +165,31 @@ Yêu cầu:
 - KHÔNG motivational sáo rỗng
 - KHÔNG dạy đời
 - KHÔNG kiểu "hãy cố lên"
+- tránh lặp lại motif "một mình vượt qua tất cả"
 - KHÔNG hashtag
 - KHÔNG emoji
-- wording tự nhiên như người từng trải viết
+- wording tự nhiên như người thật viết
 - tối đa 5 dòng
 - ngắn gọn
 - đọc có cảm giác thật
 
 Ví dụ vibe:
 
-"Áp lực lớn nhất của đàn ông,
-nhiều khi là phải tỏ ra mình vẫn ổn."
+"Càng lớn mới hiểu,
+nhiều người không rời đi vì hết thương,
+mà vì đã quá mệt."
 
 hoặc:
 
-"Rồi sẽ có lúc bạn nhận ra...
-thứ mình cần nhất
-không phải là hơn thua,
-mà là một nơi để quay về."
+"Có những ngày bình thường thôi,
+nhưng sau này nhớ lại
+lại thấy rất đẹp."
+
+hoặc:
+
+"Thứ làm người ta nhẹ lòng nhất,
+đôi khi chỉ là có ai đó hỏi:
+'Hôm nay ổn không?'"
 
 Chỉ trả về đúng nội dung quote.
 """
@@ -207,11 +232,10 @@ try:
     # SEND DECISION
     # =========================
 
-    force_send = special_event is not None
-
-    if not force_send and random.random() < 0.85:
-        print("SKIP RANDOM")
-        exit()
+    
+    if random.random() < 0.75:
+    print("SKIP RANDOM")
+    exit()
 
     # =========================
     # BUILD MESSAGE
