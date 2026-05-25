@@ -233,7 +233,9 @@ try:
     # =========================
 
     
-    if random.random() < 0.75:
+    # 25% chance send
+
+if random.random() < 0.75:
     print("SKIP RANDOM")
     exit()
 
