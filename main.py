@@ -232,12 +232,11 @@ try:
     # SEND DECISION
     # =========================
 
-    
     # 25% chance send
 
-if random.random() < 0.75:
-    print("SKIP RANDOM")
-    exit()
+    if random.random() < 0.75:
+        print("SKIP RANDOM")
+        exit()
 
     # =========================
     # BUILD MESSAGE
