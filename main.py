@@ -12,7 +12,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 client = genai.Client(api_key=GEMINI_API_KEY)
 
 # =========================
-# LOAD STATE
+# LOAD USED MESSAGES
 # =========================
 
 try:
@@ -22,7 +22,7 @@ except:
     used_messages = []
 
 # =========================
-# TIME
+# VN TIME
 # =========================
 
 now_vn = datetime.now(timezone.utc) + timedelta(hours=7)
@@ -30,7 +30,7 @@ hour_vn = now_vn.hour
 date_str = now_vn.strftime("%d/%m/%Y")
 
 print("START BOT")
-print("HOUR VN:", hour_vn)
+print("TIME VN:", now_vn.strftime("%H:%M"))
 print("DATE:", date_str)
 
 # =========================
@@ -44,52 +44,57 @@ if hour_vn >= 23 or hour_vn < 8:
     exit()
 
 # =========================
-# THEME RANDOMIZER
+# RANDOM SEND
+# =========================
+
+# chỉ có 25% gửi
+
+if random.random() < 0.75:
+    print("SKIP RANDOM")
+    exit()
+
+# =========================
+# THEMES
 # =========================
 
 themes = [
     "gia đình",
     "tuổi thơ",
+    "sự trưởng thành",
     "tình bạn",
+    "tình yêu trưởng thành",
+    "đúng người sai thời điểm",
+    "sự phù hợp",
+    "người ở lại",
+    "cảm giác được thấu hiểu",
+    "những ngày mệt mỏi",
+    "một ngày bình thường",
     "sự tử tế",
-    "bình yên",
-    "trưởng thành",
+    "sự bình yên",
     "thời gian",
     "tuổi trẻ",
-    "chữa lành",
-    "một ngày bình thường",
-    "niềm vui nhỏ",
-    "cảm giác được về nhà",
-    "sự cố gắng âm thầm",
-    "hành trình lớn lên",
-    "đêm khuya và suy nghĩ",
-    "cà phê và cuộc sống",
-    "những người đã từng gặp",
-    "sự biết ơn",
     "những điều giản dị",
-    "sự cô đơn",
-    "áp lực cuộc sống",
+    "niềm vui nhỏ",
     "mất mát",
     "hy vọng",
-    "sự nhẹ nhõm",
-    "những ngày mệt mỏi",
+    "sự cô đơn",
+    "đêm khuya và suy nghĩ",
+    "những điều không còn như trước",
+    "cảm giác được về nhà",
+    "những người từng gặp",
+    "sự biết ơn",
     "mùa mưa",
     "thành phố về đêm",
     "những cuộc trò chuyện ngắn",
-    "sự bình tĩnh",
-    "những điều không còn như trước",
-    "tình yêu trưởng thành",
-    "những mối quan hệ tốt",
-    "cảm giác được thấu hiểu",
-    "đúng người sai thời điểm",
-    "sự phù hợp",
-    "người ở lại"
+    "áp lực cuộc sống",
+    "sự nhẹ nhõm",
+    "hành trình lớn lên"
 ]
 
 theme = random.choice(themes)
 
 # =========================
-# QUOTE GENERATION
+# PROMPT
 # =========================
 
 prompt = f"""
@@ -98,45 +103,66 @@ Hãy viết 1 đoạn quote ngắn bằng tiếng Việt.
 Theme hôm nay:
 {theme}
 
+Mục tiêu:
+Tạo cảm giác như một người thật từng trải đang viết ra một suy nghĩ thật.
+
 Phong cách:
 - tự nhiên
-- đời thực
-- cảm xúc nhẹ
-- đôi khi sâu lắng
+- đời thường
+- nhẹ
+- tinh tế
+- có chiều sâu
+- cảm xúc thật
+- đôi khi buồn
 - đôi khi bình yên
-- đôi khi tích cực
-- giống một suy nghĩ thật trong cuộc sống
-- không cần lúc nào cũng buồn
+- đôi khi chỉ là một sự nhận ra nhỏ
 
-Tone tham khảo:
-- caption Facebook sâu lắng
-- suy nghĩ trong đêm
-- một điều nhận ra sau nhiều năm
-- một khoảnh khắc nhỏ trong cuộc sống
-- cảm giác trưởng thành dần
-- sự tử tế
-- những điều giản dị
+Tone:
+- giống caption Facebook hay thật sự
+- giống suy nghĩ lúc khuya
+- giống một điều hiểu ra khi lớn lên
+- không cần quá triết lý
 
 Yêu cầu:
 
 - KHÔNG quote nổi tiếng
 - KHÔNG motivational sáo rỗng
-- KHÔNG dạy đời
-- KHÔNG kiểu "hãy cố lên"
-- tránh lặp lại motif "một mình vượt qua tất cả"
-- có thể liên quan tới tình cảm hoặc các mối quan hệ, nhưng theo hướng trưởng thành và tinh tế
-- KHÔNG hashtag
-- KHÔNG emoji
-- wording tự nhiên như người thật viết
+- KHÔNG văn "càng lớn càng hiểu"
+- KHÔNG kiểu diễn giả / dạy đời
+- KHÔNG kiểu quote Facebook đại trà
+- KHÔNG văn LinkedIn / lãnh đạo / thành công
+- tránh kết luận đạo lý trực diện
+- tránh motif "một mình vượt qua tất cả"
+- ưu tiên cảm giác thật hơn là triết lý
+- có thể liên quan tới tình cảm hoặc các mối quan hệ
+- wording phải tự nhiên như người thật viết
+- không hashtag
+- không emoji
 - tối đa 5 dòng
 - ngắn gọn
-- đọc có cảm giác thật
+- dễ đọc
+- không dùng quá nhiều dấu "..."
 
-Ví dụ vibe:
+Ví dụ vibe tốt:
 
-"Càng lớn mới hiểu,
-nhiều người không rời đi vì hết thương,
-mà vì đã quá mệt."
+"Có những người,
+sau này nhớ lại
+thứ tiếc nhất
+không phải là mất nhau,
+mà là lúc đó đã không hiểu nhau hơn."
+
+hoặc:
+
+"Lớn lên rồi mới thấy,
+được ăn cơm cùng gia đình
+một bữa đầy đủ
+cũng là một loại hạnh phúc."
+
+hoặc:
+
+"Nhiều chuyện lúc nhỏ tưởng là bình thường,
+sau này mới hiểu
+đó là vì đã có người âm thầm lo giúp mình."
 
 hoặc:
 
@@ -150,14 +176,12 @@ hoặc:
 đôi khi chỉ là có ai đó hỏi:
 'Hôm nay ổn không?'"
 
-hoặc:
-
-"Ngay cả khi bạn ở trạng thái tốt nhất,
-bạn vẫn sẽ không đủ tốt
-với người không phù hợp."
-
-Chỉ trả về đúng nội dung quote.
+Chỉ trả về nội dung quote.
 """
+
+# =========================
+# GENERATE
+# =========================
 
 try:
 
@@ -169,7 +193,7 @@ try:
     raw = response.text.strip()
 
     print("THEME:", theme)
-    print("QUOTE RAW:")
+    print("RAW:")
     print(raw)
 
     # =========================
@@ -177,8 +201,28 @@ try:
     # =========================
 
     if len(raw) < 20:
-        print("INVALID")
+        print("INVALID LENGTH")
         exit()
+
+    banned_phrases = [
+        "càng lớn càng hiểu",
+        "hãy cố lên",
+        "thành công",
+        "lãnh đạo",
+        "kỷ luật",
+        "động lực",
+        "vượt qua tất cả",
+        "mạnh mẽ lên",
+        "nỗ lực",
+        "không bao giờ bỏ cuộc"
+    ]
+
+    lower_raw = raw.lower()
+
+    for phrase in banned_phrases:
+        if phrase in lower_raw:
+            print("BANNED PHRASE:", phrase)
+            exit()
 
     # =========================
     # DUPLICATE CHECK
@@ -190,7 +234,7 @@ try:
 
     used_messages.append(raw)
 
-    # giữ 100 quote gần nhất
+    # chỉ giữ 100 quote gần nhất
 
     used_messages = used_messages[-100:]
 
@@ -203,17 +247,7 @@ try:
         )
 
     # =========================
-    # SEND DECISION
-    # =========================
-
-    # 25% chance gửi
-
-    if random.random() < 0.75:
-        print("SKIP RANDOM")
-        exit()
-
-    # =========================
-    # BUILD MESSAGE
+    # FINAL MESSAGE
     # =========================
 
     final_text = f"""
@@ -238,8 +272,7 @@ try:
         }
     )
 
-    print("SENT:")
-    print(final_text)
+    print("SENT")
 
     print(
         "TELEGRAM:",
