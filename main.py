@@ -21,12 +21,6 @@ try:
 except:
     used_messages = []
 
-try:
-    with open("event_sent.json", "r", encoding="utf-8") as f:
-        event_sent = json.load(f)
-except:
-    event_sent = {}
-
 # =========================
 # TIME
 # =========================
@@ -39,57 +33,15 @@ print("START BOT")
 print("HOUR VN:", hour_vn)
 print("DATE:", date_str)
 
-# 23h -> 8h stop
+# =========================
+# SLEEP WINDOW
+# =========================
+
+# ngủ từ 23h -> 8h
 
 if hour_vn >= 23 or hour_vn < 8:
     print("SLEEP WINDOW")
     exit()
-
-# =========================
-# EVENT CHECK
-# =========================
-
-special_event = None
-event_key = date_str
-
-event_prompt = f"""
-Hôm nay là {date_str}.
-
-Có sự kiện đặc biệt nào không
-(lễ Việt Nam, ngày quốc tế, kỷ niệm lớn)?
-
-Nếu có:
-- đúng 1 dòng
-- tiếng Việt
-- dưới 15 từ
-
-Nếu không có:
-NONE
-"""
-
-if event_key not in event_sent:
-
-    try:
-
-        event_response = client.models.generate_content(
-            model="gemini-3.1-flash-lite",
-            contents=event_prompt
-        )
-
-        result = event_response.text.strip()
-
-        print("EVENT RAW:")
-        print(result)
-
-        if result != "NONE" and len(result) > 3:
-            special_event = result
-            event_sent[event_key] = True
-
-    except Exception as e:
-        print("EVENT ERROR:", e)
-
-with open("event_sent.json", "w", encoding="utf-8") as f:
-    json.dump(event_sent, f, ensure_ascii=False, indent=2)
 
 # =========================
 # THEME RANDOMIZER
@@ -125,7 +77,13 @@ themes = [
     "thành phố về đêm",
     "những cuộc trò chuyện ngắn",
     "sự bình tĩnh",
-    "những điều không còn như trước"
+    "những điều không còn như trước",
+    "tình yêu trưởng thành",
+    "những mối quan hệ tốt",
+    "cảm giác được thấu hiểu",
+    "đúng người sai thời điểm",
+    "sự phù hợp",
+    "người ở lại"
 ]
 
 theme = random.choice(themes)
@@ -166,6 +124,7 @@ Yêu cầu:
 - KHÔNG dạy đời
 - KHÔNG kiểu "hãy cố lên"
 - tránh lặp lại motif "một mình vượt qua tất cả"
+- có thể liên quan tới tình cảm hoặc các mối quan hệ, nhưng theo hướng trưởng thành và tinh tế
 - KHÔNG hashtag
 - KHÔNG emoji
 - wording tự nhiên như người thật viết
@@ -191,6 +150,12 @@ hoặc:
 đôi khi chỉ là có ai đó hỏi:
 'Hôm nay ổn không?'"
 
+hoặc:
+
+"Ngay cả khi bạn ở trạng thái tốt nhất,
+bạn vẫn sẽ không đủ tốt
+với người không phù hợp."
+
 Chỉ trả về đúng nội dung quote.
 """
 
@@ -207,13 +172,17 @@ try:
     print("QUOTE RAW:")
     print(raw)
 
-    # validation
+    # =========================
+    # VALIDATION
+    # =========================
 
     if len(raw) < 20:
         print("INVALID")
         exit()
 
-    # duplicate
+    # =========================
+    # DUPLICATE CHECK
+    # =========================
 
     if raw in used_messages:
         print("DUPLICATE")
@@ -226,13 +195,18 @@ try:
     used_messages = used_messages[-100:]
 
     with open("used_messages.json", "w", encoding="utf-8") as f:
-        json.dump(used_messages, f, ensure_ascii=False, indent=2)
+        json.dump(
+            used_messages,
+            f,
+            ensure_ascii=False,
+            indent=2
+        )
 
     # =========================
     # SEND DECISION
     # =========================
 
-    # 25% chance send
+    # 25% chance gửi
 
     if random.random() < 0.75:
         print("SKIP RANDOM")
@@ -242,27 +216,13 @@ try:
     # BUILD MESSAGE
     # =========================
 
-    def build_message(event, quote):
+    final_text = f"""
+{raw}
 
-        parts = []
+━━━━━━━━━━━━
 
-        if event:
-            parts.append(
-                f"🔥 *SỰ KIỆN HÔM NAY*\n{event}"
-            )
-
-        parts.append(quote)
-
-        parts.append("━━━━━━━━━━━━")
-
-        parts.append(f"📅 {date_str}")
-
-        return "\n\n".join(parts)
-
-    final_text = build_message(
-        special_event,
-        raw
-    )
+📅 {date_str}
+""".strip()
 
     # =========================
     # SEND TELEGRAM
@@ -274,8 +234,7 @@ try:
         url,
         json={
             "chat_id": CHAT_ID,
-            "text": final_text,
-            "parse_mode": "Markdown"
+            "text": final_text
         }
     )
 
