@@ -63,32 +63,33 @@ themes = [
     "sự trưởng thành",
     "tình bạn",
     "tình yêu trưởng thành",
-    "đúng người sai thời điểm",
-    "sự phù hợp",
     "người ở lại",
+    "sự phù hợp",
     "cảm giác được thấu hiểu",
-    "những ngày mệt mỏi",
-    "một ngày bình thường",
-    "sự tử tế",
-    "sự bình yên",
-    "thời gian",
-    "tuổi trẻ",
-    "những điều giản dị",
-    "niềm vui nhỏ",
+    "sự cô đơn",
     "mất mát",
     "hy vọng",
-    "sự cô đơn",
-    "đêm khuya và suy nghĩ",
-    "những điều không còn như trước",
-    "cảm giác được về nhà",
-    "những người từng gặp",
+
+    "sự tử tế",
     "sự biết ơn",
-    "mùa mưa",
-    "thành phố về đêm",
-    "những cuộc trò chuyện ngắn",
-    "áp lực cuộc sống",
-    "sự nhẹ nhõm",
-    "hành trình lớn lên"
+    "thời gian",
+    "những điều giản dị",
+    "một ngày bình thường",
+    "những điều không còn như trước",
+
+    "góc nhìn mới",
+    "nghịch lý cuộc sống",
+    "một ý tưởng có hai mặt",
+    "điều đáng suy ngẫm",
+    "sự thật khó nhận ra",
+    "một nhận thức thay đổi cách nhìn",
+
+    "bản ngã",
+    "nỗi sợ",
+    "sự bình yên",
+    "buông bỏ",
+    "kỳ vọng",
+    "sự chấp nhận"
 ]
 
 theme = random.choice(themes)
@@ -98,83 +99,83 @@ theme = random.choice(themes)
 # =========================
 
 prompt = f"""
-Hãy viết 1 đoạn quote ngắn bằng tiếng Việt.
+Viết 1 đoạn quote ngắn bằng tiếng Việt.
 
 Theme hôm nay:
 {theme}
 
 Mục tiêu:
-Tạo cảm giác như một người thật từng trải đang viết ra một suy nghĩ thật.
 
-Phong cách:
-- tự nhiên
-- đời thường
-- nhẹ
-- tinh tế
-- có chiều sâu
-- cảm xúc thật
-- đôi khi buồn
-- đôi khi bình yên
-- đôi khi chỉ là một sự nhận ra nhỏ
+Tạo ra một nội dung khiến người đọc dừng lại vài giây để suy nghĩ.
 
-Tone:
-- giống caption Facebook hay thật sự
-- giống suy nghĩ lúc khuya
-- giống một điều hiểu ra khi lớn lên
-- không cần quá triết lý
+Nội dung có thể thuộc MỘT trong các dạng sau:
+
+1. Một quan sát đời sống
+2. Một cảm xúc chân thật
+3. Một nghịch lý thú vị
+4. Một góc nhìn mới
+5. Một nhận thức bất ngờ
+6. Một sự thật đơn giản nhưng ít ai để ý
 
 Yêu cầu:
 
-- KHÔNG quote nổi tiếng
-- KHÔNG motivational sáo rỗng
-- KHÔNG văn "càng lớn càng hiểu"
-- KHÔNG kiểu diễn giả / dạy đời
-- KHÔNG kiểu quote Facebook đại trà
-- KHÔNG văn LinkedIn / lãnh đạo / thành công
-- tránh kết luận đạo lý trực diện
-- tránh motif "một mình vượt qua tất cả"
-- ưu tiên cảm giác thật hơn là triết lý
-- có thể liên quan tới tình cảm hoặc các mối quan hệ
-- wording phải tự nhiên như người thật viết
-- không hashtag
-- không emoji
-- tối đa 5 dòng
+- tự nhiên
+- tinh tế
 - ngắn gọn
-- dễ đọc
-- không dùng quá nhiều dấu "..."
+- có chiều sâu
+- không màu mè
 
-Ví dụ vibe tốt:
+Cấm:
 
-"Có những người,
-sau này nhớ lại
-thứ tiếc nhất
-không phải là mất nhau,
-mà là lúc đó đã không hiểu nhau hơn."
+- quote nổi tiếng
+- văn diễn giả
+- văn LinkedIn
+- văn lãnh đạo
+- self-help sáo rỗng
+- "hãy cố lên"
+- "bạn sẽ thành công"
+- "càng lớn càng hiểu"
+- "một mình vượt qua tất cả"
+- đạo lý quá trực diện
 
-hoặc:
+Ưu tiên:
 
-"Lớn lên rồi mới thấy,
-được ăn cơm cùng gia đình
-một bữa đầy đủ
-cũng là một loại hạnh phúc."
+- insight
+- góc nhìn ngược
+- nghịch lý
+- suy nghĩ khiến người đọc phải nghĩ lại
 
-hoặc:
+Ví dụ tốt:
 
-"Nhiều chuyện lúc nhỏ tưởng là bình thường,
-sau này mới hiểu
-đó là vì đã có người âm thầm lo giúp mình."
+"Có những người không thay đổi.
+Chỉ là đến một lúc nào đó,
+họ không còn cố làm hài lòng tất cả nữa."
 
-hoặc:
+hoặc
 
-"Có những ngày bình thường thôi,
-nhưng sau này nhớ lại
-lại thấy rất đẹp."
+"Nhiều thứ làm ta mệt,
+không phải vì chúng nặng,
+mà vì ta mang chúng quá lâu."
 
-hoặc:
+hoặc
 
-"Thứ làm người ta nhẹ lòng nhất,
-đôi khi chỉ là có ai đó hỏi:
-'Hôm nay ổn không?'"
+"Có những cánh cửa không khóa.
+Chỉ là mình đã quen đứng bên ngoài."
+
+hoặc
+
+"Càng cố thắng một cuộc tranh cãi,
+người ta càng dễ thua một mối quan hệ."
+
+hoặc
+
+"Nỗi sợ thường lớn nhất
+ngay trước khi ta bắt đầu."
+
+hoặc
+
+"Sự bình yên không đến khi mọi thứ hoàn hảo.
+Nó đến khi ta thôi đòi hỏi mọi thứ phải hoàn hảo."
 
 Chỉ trả về nội dung quote.
 """
