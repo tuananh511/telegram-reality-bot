@@ -37,8 +37,6 @@ print("DATE:", date_str)
 # SLEEP WINDOW
 # =========================
 
-# ngủ từ 23h -> 8h
-
 if hour_vn >= 23 or hour_vn < 8:
     print("SLEEP WINDOW")
     exit()
@@ -47,14 +45,12 @@ if hour_vn >= 23 or hour_vn < 8:
 # RANDOM SEND
 # =========================
 
-# chỉ có 25% gửi
-
 if random.random() < 0.75:
     print("SKIP RANDOM")
     exit()
 
 # =========================
-# THEMES
+# CONTENT TYPE
 # =========================
 
 content_types = [
@@ -87,30 +83,49 @@ Viết 1 quote tiếng Việt.
 Loại nội dung:
 {content_type}
 
+Mục tiêu:
+Tạo một nội dung ngắn khiến người đọc dừng lại vài giây để suy nghĩ.
+
 Yêu cầu:
 
-- KHÔNG bắt đầu bằng:
-  "Chúng ta"
-  "Người ta"
-  "Đôi khi"
-  "Có những"
-  "Ta vẫn"
+- Tự nhiên
+- Ngắn gọn
+- Có chiều sâu
+- Không màu mè
+- Có thể là insight, nghịch lý hoặc góc nhìn mới
 
-- KHÔNG nói về:
-  tuổi thơ
-  người cũ
-  ký ức
-  thời gian trôi
-  trưởng thành
+KHÔNG được bắt đầu bằng:
 
-- KHÔNG văn diễn giả
-- KHÔNG văn LinkedIn
-- KHÔNG self-help
+- Chúng ta
+- Người ta
+- Đôi khi
+- Có những
+- Ta vẫn
 
-- Ngắn
-- Có punchline
-- Có góc nhìn mới
-- Có thể hơi nghịch lý
+KHÔNG được nói về:
+
+- tuổi thơ
+- người cũ
+- ký ức
+- thời gian trôi
+- trưởng thành
+
+KHÔNG:
+
+- quote nổi tiếng
+- văn diễn giả
+- văn LinkedIn
+- self-help sáo rỗng
+- dạy đời
+- động lực kiểu mạng xã hội
+
+Ưu tiên:
+
+- thought experiment
+- psychology
+- paradox
+- harsh truth
+- observation
 
 Ví dụ:
 
@@ -129,7 +144,12 @@ hoặc
 "Càng cố chứng minh mình đúng,
 càng ít người muốn lắng nghe."
 
-Chỉ trả về quote.
+hoặc
+
+"Im lặng không phải lúc nào cũng là bình yên.
+Đôi khi nó chỉ là một cuộc tranh cãi đã quá mệt để tiếp tục."
+
+Chỉ trả về nội dung quote.
 """
 
 # =========================
@@ -145,7 +165,7 @@ try:
 
     raw = response.text.strip()
 
-    print("THEME:", theme)
+    print("CONTENT TYPE:", content_type)
     print("RAW:")
     print(raw)
 
@@ -156,6 +176,8 @@ try:
     if len(raw) < 20:
         print("INVALID LENGTH")
         exit()
+
+    lower_raw = raw.lower()
 
     banned_phrases = [
         "càng lớn càng hiểu",
@@ -170,34 +192,36 @@ try:
         "không bao giờ bỏ cuộc"
     ]
 
-    lower_raw = raw.lower()
+    for phrase in banned_phrases:
+        if phrase in lower_raw:
+            print("BANNED PHRASE:", phrase)
+            exit()
 
     bad_starts = [
-    "chúng ta",
-    "người ta",
-    "đôi khi",
-    "có những",
-    "ta vẫn"
-]
+        "chúng ta",
+        "người ta",
+        "đôi khi",
+        "có những",
+        "ta vẫn"
+    ]
 
-for start in bad_starts:
-    if lower_raw.startswith(start):
-        print("REPETITIVE STYLE")
-        exit()
+    for start in bad_starts:
+        if lower_raw.startswith(start):
+            print("REPETITIVE STYLE")
+            exit()
 
     banned_topics = [
-    "tuổi thơ",
-    "người cũ",
-    "ký ức",
-    "trưởng thành",
-    "thời gian trôi",
-    "hồn nhiên"
-]
+        "tuổi thơ",
+        "người cũ",
+        "ký ức",
+        "trưởng thành",
+        "hồn nhiên"
+    ]
 
-for topic in banned_topics:
-    if topic in lower_raw:
-        print("REPETITIVE TOPIC")
-        exit()
+    for topic in banned_topics:
+        if topic in lower_raw:
+            print("REPETITIVE TOPIC")
+            exit()
 
     # =========================
     # DUPLICATE CHECK
@@ -208,8 +232,6 @@ for topic in banned_topics:
         exit()
 
     used_messages.append(raw)
-
-    # chỉ giữ 300 quote gần nhất
 
     used_messages = used_messages[-300:]
 
