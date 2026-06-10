@@ -57,127 +57,79 @@ if random.random() < 0.75:
 # THEMES
 # =========================
 
-themes = [
-    "gia đình",
-    "tuổi thơ",
-    "sự trưởng thành",
-    "tình bạn",
-    "tình yêu trưởng thành",
-    "người ở lại",
-    "sự phù hợp",
-    "cảm giác được thấu hiểu",
-    "sự cô đơn",
-    "mất mát",
-    "hy vọng",
-
-    "sự tử tế",
-    "sự biết ơn",
-    "thời gian",
-    "những điều giản dị",
-    "một ngày bình thường",
-    "những điều không còn như trước",
-
-    "góc nhìn mới",
-    "nghịch lý cuộc sống",
-    "một ý tưởng có hai mặt",
-    "điều đáng suy ngẫm",
-    "sự thật khó nhận ra",
-    "một nhận thức thay đổi cách nhìn",
-
-    "bản ngã",
-    "nỗi sợ",
-    "sự bình yên",
-    "buông bỏ",
-    "kỳ vọng",
-    "sự chấp nhận"
+content_types = [
+    "life_observation",
+    "relationship",
+    "family",
+    "friendship",
+    "psychology",
+    "paradox",
+    "thought_experiment",
+    "harsh_truth",
+    "modern_life",
+    "self_respect",
+    "letting_go",
+    "solitude",
+    "gratitude",
+    "aging",
+    "humor_with_meaning"
 ]
 
-theme = random.choice(themes)
+content_type = random.choice(content_types)
 
 # =========================
 # PROMPT
 # =========================
 
 prompt = f"""
-Viết 1 đoạn quote ngắn bằng tiếng Việt.
+Viết 1 quote tiếng Việt.
 
-Theme hôm nay:
-{theme}
-
-Mục tiêu:
-
-Tạo ra một nội dung khiến người đọc dừng lại vài giây để suy nghĩ.
-
-Nội dung có thể thuộc MỘT trong các dạng sau:
-
-1. Một quan sát đời sống
-2. Một cảm xúc chân thật
-3. Một nghịch lý thú vị
-4. Một góc nhìn mới
-5. Một nhận thức bất ngờ
-6. Một sự thật đơn giản nhưng ít ai để ý
+Loại nội dung:
+{content_type}
 
 Yêu cầu:
 
-- tự nhiên
-- tinh tế
-- ngắn gọn
-- có chiều sâu
-- không màu mè
+- KHÔNG bắt đầu bằng:
+  "Chúng ta"
+  "Người ta"
+  "Đôi khi"
+  "Có những"
+  "Ta vẫn"
 
-Cấm:
+- KHÔNG nói về:
+  tuổi thơ
+  người cũ
+  ký ức
+  thời gian trôi
+  trưởng thành
 
-- quote nổi tiếng
-- văn diễn giả
-- văn LinkedIn
-- văn lãnh đạo
-- self-help sáo rỗng
-- "hãy cố lên"
-- "bạn sẽ thành công"
-- "càng lớn càng hiểu"
-- "một mình vượt qua tất cả"
-- đạo lý quá trực diện
+- KHÔNG văn diễn giả
+- KHÔNG văn LinkedIn
+- KHÔNG self-help
 
-Ưu tiên:
+- Ngắn
+- Có punchline
+- Có góc nhìn mới
+- Có thể hơi nghịch lý
 
-- insight
-- góc nhìn ngược
-- nghịch lý
-- suy nghĩ khiến người đọc phải nghĩ lại
+Ví dụ:
 
-Ví dụ tốt:
-
-"Có những người không thay đổi.
-Chỉ là đến một lúc nào đó,
-họ không còn cố làm hài lòng tất cả nữa."
+"Nỗi sợ lớn nhất của nhiều người
+không phải thất bại,
+mà là bị người khác thấy mình thất bại."
 
 hoặc
 
-"Nhiều thứ làm ta mệt,
-không phải vì chúng nặng,
-mà vì ta mang chúng quá lâu."
+"Tiền không mua được thời gian.
+Nhưng thiếu tiền,
+người ta phải bán rất nhiều thời gian."
 
 hoặc
 
-"Có những cánh cửa không khóa.
-Chỉ là mình đã quen đứng bên ngoài."
+"Càng cố chứng minh mình đúng,
+càng ít người muốn lắng nghe."
 
-hoặc
-
-"Càng cố thắng một cuộc tranh cãi,
-người ta càng dễ thua một mối quan hệ."
-
-hoặc
-
-"Nỗi sợ thường lớn nhất
-ngay trước khi ta bắt đầu."
-
-hoặc
-
-"Sự bình yên không đến khi mọi thứ hoàn hảo.
-Nó đến khi ta thôi đòi hỏi mọi thứ phải hoàn hảo."
-
-Chỉ trả về nội dung quote.
+Chỉ trả về quote.
 """
 
 # =========================
@@ -220,10 +172,32 @@ try:
 
     lower_raw = raw.lower()
 
-    for phrase in banned_phrases:
-        if phrase in lower_raw:
-            print("BANNED PHRASE:", phrase)
-            exit()
+    bad_starts = [
+    "chúng ta",
+    "người ta",
+    "đôi khi",
+    "có những",
+    "ta vẫn"
+]
+
+for start in bad_starts:
+    if lower_raw.startswith(start):
+        print("REPETITIVE STYLE")
+        exit()
+
+    banned_topics = [
+    "tuổi thơ",
+    "người cũ",
+    "ký ức",
+    "trưởng thành",
+    "thời gian trôi",
+    "hồn nhiên"
+]
+
+for topic in banned_topics:
+    if topic in lower_raw:
+        print("REPETITIVE TOPIC")
+        exit()
 
     # =========================
     # DUPLICATE CHECK
@@ -235,9 +209,9 @@ try:
 
     used_messages.append(raw)
 
-    # chỉ giữ 100 quote gần nhất
+    # chỉ giữ 300 quote gần nhất
 
-    used_messages = used_messages[-100:]
+    used_messages = used_messages[-300:]
 
     with open("used_messages.json", "w", encoding="utf-8") as f:
         json.dump(
