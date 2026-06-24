@@ -53,25 +53,55 @@ if random.random() < 0.75:
 # CONTENT TYPE
 # =========================
 
-content_types = [
-    "life_observation",
-    "relationship",
-    "family",
-    "friendship",
-    "psychology",
-    "paradox",
-    "thought_experiment",
-    "harsh_truth",
-    "modern_life",
-    "self_respect",
-    "letting_go",
-    "solitude",
-    "gratitude",
-    "aging",
-    "humor_with_meaning"
-]
+content_prompts = {
+    "life_observation":
+        "một quan sát sâu sắc về cuộc sống thường ngày",
 
-content_type = random.choice(content_types)
+    "relationship":
+        "một sự thật hoặc góc nhìn về các mối quan hệ",
+
+    "family":
+        "một quan sát chân thực về gia đình",
+
+    "friendship":
+        "một góc nhìn về tình bạn",
+
+    "psychology":
+        "một insight tâm lý học về hành vi con người",
+
+    "paradox":
+        "một nghịch lý khiến người đọc phải suy nghĩ lại",
+
+    "thought_experiment":
+        "một câu hỏi hoặc giả định kích thích tư duy",
+
+    "harsh_truth":
+        "một sự thật khó nghe nhưng đúng",
+
+    "modern_life":
+        "một góc nhìn về cuộc sống hiện đại",
+
+    "self_respect":
+        "một góc nhìn về lòng tự trọng",
+
+    "letting_go":
+        "một góc nhìn về việc buông bỏ",
+
+    "solitude":
+        "một góc nhìn về việc ở một mình",
+
+    "gratitude":
+        "một góc nhìn về sự biết ơn",
+
+    "aging":
+        "một nhận thức về tuổi tác và thời gian",
+
+    "humor_with_meaning":
+        "một câu có chút hài hước nhưng mang ý nghĩa sâu sắc"
+}
+
+content_type = random.choice(list(content_prompts.keys()))
+selected_prompt = content_prompts[content_type]
 
 # =========================
 # PROMPT
@@ -80,8 +110,19 @@ content_type = random.choice(content_types)
 prompt = f"""
 Viết 1 quote tiếng Việt.
 
-Loại nội dung:
-{content_type}
+Chủ đề hôm nay:
+
+{selected_prompt}
+
+Định dạng ngẫu nhiên một trong các kiểu:
+
+- one-liner
+- paradox
+- question
+- contrast
+- thought experiment
+
+Ưu tiên các câu ngắn, dễ nhớ.
 
 Mục tiêu:
 Tạo một nội dung ngắn khiến người đọc dừng lại vài giây để suy nghĩ.
@@ -165,6 +206,83 @@ try:
 
     raw = response.text.strip()
 
+    score_prompt = f"""
+Đánh giá quote sau từ 1 đến 10.
+
+Tiêu chí:
+
+- đáng nhớ
+- có ý mới
+- không sáo rỗng
+- ngắn gọn
+- có khả năng khiến người đọc dừng lại suy nghĩ
+
+Quote:
+
+{raw}
+
+Chỉ trả về 1 số.
+"""
+
+score_response = client.models.generate_content(
+    model="gemini-3.1-flash-lite",
+    contents=score_prompt
+)
+
+try:
+    score = int(
+        ''.join(
+            c for c in score_response.text
+            if c.isdigit()
+        )[:2]
+    )
+except:
+    score = 0
+
+print("SCORE:", score)
+
+if score < 8:
+    print("LOW SCORE")
+    exit()
+
+    recent_quotes = "\n\n".join(
+    used_messages[-20:]
+)
+    duplicate_prompt = f"""
+Quote mới:
+
+{raw}
+
+20 quote gần nhất:
+
+{recent_quotes}
+
+Nếu quote mới quá giống về ý tưởng,
+chủ đề hoặc thông điệp với các quote trước:
+
+Trả về:
+
+SIMILAR
+
+Nếu đủ khác biệt:
+
+Trả về:
+
+UNIQUE
+"""
+    dup_response = client.models.generate_content(
+    model="gemini-3.1-flash-lite",
+    contents=duplicate_prompt
+)
+
+dup_result = dup_response.text.strip().upper()
+
+print("UNIQUENESS:", dup_result)
+
+if "SIMILAR" in dup_result:
+    print("SEMANTIC DUPLICATE")
+    exit()
+    
     print("CONTENT TYPE:", content_type)
     print("RAW:")
     print(raw)
@@ -233,7 +351,7 @@ try:
 
     used_messages.append(raw)
 
-    used_messages = used_messages[-300:]
+    used_messages = used_messages[-1000:]
 
     with open("used_messages.json", "w", encoding="utf-8") as f:
         json.dump(
