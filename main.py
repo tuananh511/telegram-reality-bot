@@ -193,7 +193,6 @@ hoặc
 Chỉ trả về nội dung quote.
 """
 
-```python
 # =========================
 # GENERATE
 # =========================
@@ -391,5 +390,4 @@ UNIQUE
 
 except Exception as e:
     print("ERROR:", e)
-```
 
