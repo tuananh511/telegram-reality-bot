@@ -80,7 +80,7 @@ class Config:
             bot_token=os.getenv("BOT_TOKEN", ""),
             chat_id=os.getenv("CHAT_ID", ""),
             gemini_api_key=os.getenv("GEMINI_API_KEY", ""),
-            gemini_model=os.getenv("GEMINI_MODEL", "gemini-2.0-flash-001"),
+            gemini_model=os.getenv("GEMINI_MODEL", "gemini-3.1-flash-lite"),
             used_messages_path=Path(os.getenv("USED_MESSAGES_PATH", "used_messages.json")),
             sleep_hour_start=_env_int("SLEEP_HOUR_START", 23),
             sleep_hour_end=_env_int("SLEEP_HOUR_END", 8),
