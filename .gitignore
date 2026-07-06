@@ -1,9 +1,12 @@
 # Secrets / local config
 .env
 
-# State file (chứa lịch sử quote đã gửi — cục bộ theo từng máy)
-used_messages.json
+# File tạm khi ghi state (không cần commit, sẽ được rename thành used_messages.json)
 used_messages.json.tmp
+
+# LƯU Ý: used_messages.json KHÔNG được ignore — workflow GitHub Actions
+# (.github/workflows/bot.yml) tự commit lại file này sau mỗi lần gửi quote
+# thành công, để giữ lịch sử chống trùng giữa các lần chạy.
 
 # Python
 __pycache__/
