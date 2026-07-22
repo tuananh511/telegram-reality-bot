@@ -1,65 +1,52 @@
 # Daily Quote Telegram Bot
 > Send daily reality-based quotes via Telegram.
 
-<p align="center">
-  <img src="assets/demo.gif">
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/github/v/release/tuananh511/telegram-reality-bot?label=release" alt="Release">
-  <img src="https://img.shields.io/github/license/tuananh511/telegram-reality-bot" alt="License">
-  <img src="https://img.shields.io/github/actions/workflow/status/tuananh511/telegram-reality-bot/main.yml?label=build" alt="Build">
-</p>
+![Release](https://img.shields.io/github/v/release/tuananh511/telegram-reality-bot)
+![License](https://img.shields.io/github/license/tuananh511/telegram-reality-bot)
+![Build](https://img.shields.io/github/actions/workflow/status/tuananh511/telegram-reality-bot/main.yml)
 
 ## Overview
-A Telegram bot that automatically sends short, reflective Vietnamese quotes with a real-life, mature tone — similar to healing captions and reflections on life, family, loneliness, time, and personal growth. If a special day occurs (holiday, anniversary, international event), the bot automatically attaches a notice above the quote. The system runs entirely on GitHub Actions on a cron schedule, with no VPS or dedicated server required.
+Bot Telegram tự động gửi những đoạn quote ngắn bằng tiếng Việt mang cảm giác sâu lắng, trưởng thành và đời thực — giống các caption chữa lành, suy ngẫm về cuộc sống, gia đình, cô đơn, thời gian và hành trình trưởng thành. Nếu trong ngày có sự kiện đặc biệt (lễ, ngày kỷ niệm, sự kiện quốc tế...), bot tự động gắn thêm phần thông báo phía trên quote. Lịch chạy được điều khiển bởi **cron-job.org**, gọi tới GitHub Actions API (`workflow_dispatch`) theo chu kỳ đặt trước — bot vẫn thực thi trên GitHub-hosted runner nên không cần VPS hay server riêng.
 
 ## Features
-- Sends quotes automatically on a schedule
-- Prevents duplicate content
-- Automatically detects special events on the current day
-- Randomizes sending frequency to avoid spamming
-- Stays silent during quiet hours (23:00 → 08:00)
-- No VPS required
-- Runs at near-zero cost
-
-**AI used:** Google Gemini API (`gemini-3.1-flash-lite`) — generates natural Vietnamese quotes, reduces the "AI quote machine" feel, produces content in the style of reflective Facebook captions, and checks for special events on the day.
-
-**Tech stack:** Python · GitHub Actions · Telegram Bot API · Google Gemini API · JSON state tracking
+- Gửi quote theo lịch, kích hoạt bởi cron-job.org qua GitHub Actions `workflow_dispatch`
+- Chống trùng nội dung
+- Tự động phát hiện sự kiện đặc biệt trong ngày và gắn thông báo
+- Random tần suất gửi để tránh spam (15% khi không có event, luôn gửi khi có event)
+- Không chạy trong khung giờ nghỉ (23:00 → 08:00)
+- Sinh quote bằng Google Gemini API (`gemini-3.1-flash-lite`), theme random (gia đình, trưởng thành, cô đơn, thời gian, chữa lành, v.v.)
+- Không cần VPS, chi phí gần như bằng 0
 
 ## Installation
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/tuananh511/telegram-reality-bot.git
-   cd telegram-reality-bot
-   ```
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. Set the required secrets/environment variables (Telegram bot token, chat ID, Gemini API key) — for GitHub Actions, add them under **Settings → Secrets and variables → Actions**.
+```bash
+git clone https://github.com/tuananh511/telegram-reality-bot.git
+cd telegram-reality-bot
+pip install -r requirements.txt
+```
+
+Cần thiết lập các biến môi trường (dùng GitHub Secrets):
+- `TELEGRAM_BOT_TOKEN`
+- `TELEGRAM_CHAT_ID`
+- `GEMINI_API_KEY`
+
+Trên GitHub: **Settings → Actions → General → Workflow permissions**, đảm bảo workflow được phép chạy qua `workflow_dispatch`. Sau đó tạo một Personal Access Token (scope `repo`/`workflow`) để cron-job.org dùng gọi API.
 
 ## Usage
-The bot is designed to run via the scheduled GitHub Actions workflow in `.github/workflows`:
-- The workflow runs every 2 hours.
-- Outside the 08:00–23:00 window, the bot skips sending.
-- On each run, it checks for a special event, picks a random emotional theme, generates a new quote via Gemini, checks against duplicates, then decides whether to send (always if there's an event, otherwise a random 15% chance).
-- State is persisted in `used_messages.json` and `event_sent.json`.
-
-To run locally instead of via Actions:
+Chạy thủ công (test cục bộ):
 ```bash
 python main.py
 ```
 
-**Rotating themes:** family, growing up, being a man, loneliness, life pressure, kindness, time, youth, quiet perseverance, peace, healing, loss, the journey of growing up, responsibility, late-night thoughts.
+Chạy tự động: cron-job.org được cấu hình gọi định kỳ tới endpoint:
+POST https://api.github.com/repos/tuananh511/telegram-reality-bot/actions/workflows/main.yml/dispatches
+kèm header `Authorization: Bearer <PAT>` và body `{"ref": "main"}`. Mỗi lần chạy, bot tự kiểm tra khung giờ (08:00–23:00), sự kiện trong ngày, sinh quote mới, kiểm tra trùng, và quyết định gửi. State được lưu trong `used_messages.json` và `event_sent.json`.
 
 ## Roadmap
 - [ ] Habit tracking
-- [ ] Reminders
-- [ ] AI companion mode
+- [ ] Reminder tích hợp
+- [ ] AI companion layer
 - [ ] Personal assistant layer
-
-> Note: this project is currently designed for single-user, personal use. Since it relies on GitHub Actions cron instead of a real-time server, it's best suited for forking/self-hosting rather than scaling into a public multi-user bot (which would need a VPS or a webhook/polling server running 24/7).
+- [ ] Hỗ trợ multi-user (cần VPS/webhook server 24/7)
 
 ## License
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+MIT
