@@ -1,120 +1,65 @@
 # Daily Quote Telegram Bot
+> Send daily reality-based quotes via Telegram.
 
-Bot Telegram tự động gửi những đoạn quote ngắn bằng tiếng Việt mang cảm giác sâu lắng, trưởng thành và đời thực — giống các caption chữa lành, suy ngẫm về cuộc sống, gia đình, cô đơn, thời gian và hành trình trưởng thành.
+<p align="center">
+  <img src="assets/demo.gif">
+</p>
 
-Hệ thống chạy hoàn toàn tự động bằng **GitHub Actions** theo cron schedule, không cần VPS hay server riêng, chi phí gần như bằng 0.
+<p align="center">
+  <img src="https://img.shields.io/github/v/release/tuananh511/telegram-reality-bot?label=release" alt="Release">
+  <img src="https://img.shields.io/github/license/tuananh511/telegram-reality-bot" alt="License">
+  <img src="https://img.shields.io/github/actions/workflow/status/tuananh511/telegram-reality-bot/main.yml?label=build" alt="Build">
+</p>
 
----
+## Overview
+A Telegram bot that automatically sends short, reflective Vietnamese quotes with a real-life, mature tone — similar to healing captions and reflections on life, family, loneliness, time, and personal growth. If a special day occurs (holiday, anniversary, international event), the bot automatically attaches a notice above the quote. The system runs entirely on GitHub Actions on a cron schedule, with no VPS or dedicated server required.
 
-## Tính năng
+## Features
+- Sends quotes automatically on a schedule
+- Prevents duplicate content
+- Automatically detects special events on the current day
+- Randomizes sending frequency to avoid spamming
+- Stays silent during quiet hours (23:00 → 08:00)
+- No VPS required
+- Runs at near-zero cost
 
-- Tự động sinh và gửi quote theo lịch
-- Chấm điểm chất lượng quote bằng AI trước khi gửi (loại bỏ quote < 8 điểm)
-- Chống trùng nội dung (duplicate theo văn bản + duplicate theo ý nghĩa/semantic)
-- Lọc theo danh sách từ/chủ đề cấm và kiểu mở đầu lặp lại
-- Random tần suất gửi để tránh spam (~25% mỗi lần chạy)
-- Không chạy trong khung giờ nghỉ (23:00 → 08:00, giờ VN)
-- Không cần VPS, không cần server chạy 24/7
+**AI used:** Google Gemini API (`gemini-3.1-flash-lite`) — generates natural Vietnamese quotes, reduces the "AI quote machine" feel, produces content in the style of reflective Facebook captions, and checks for special events on the day.
 
-## AI sử dụng
+**Tech stack:** Python · GitHub Actions · Telegram Bot API · Google Gemini API · JSON state tracking
 
-- **Provider:** Google Gemini API (`google-genai`)
-- **Model:** `gemini-3.1-flash-lite`
+## Installation
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/tuananh511/telegram-reality-bot.git
+   cd telegram-reality-bot
+   ```
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. Set the required secrets/environment variables (Telegram bot token, chat ID, Gemini API key) — for GitHub Actions, add them under **Settings → Secrets and variables → Actions**.
 
-AI được dùng cho 3 việc trong mỗi lần chạy:
-1. Sinh quote tiếng Việt tự nhiên theo chủ đề random
-2. Chấm điểm chất lượng quote (1–10)
-3. Kiểm tra trùng lặp ý nghĩa (semantic) so với 20 quote gần nhất
+## Usage
+The bot is designed to run via the scheduled GitHub Actions workflow in `.github/workflows`:
+- The workflow runs every 2 hours.
+- Outside the 08:00–23:00 window, the bot skips sending.
+- On each run, it checks for a special event, picks a random emotional theme, generates a new quote via Gemini, checks against duplicates, then decides whether to send (always if there's an event, otherwise a random 15% chance).
+- State is persisted in `used_messages.json` and `event_sent.json`.
 
-## Cách hoạt động
-
-1. GitHub Actions chạy theo lịch cron (mỗi 2 giờ).
-2. Nếu ngoài khung 08:00–23:00 (giờ VN) → bot dừng ngay.
-3. Random 75% → bỏ qua lượt chạy (chỉ ~25% số lần chạy thực sự gửi quote).
-4. Random chọn 1 trong 15 chủ đề (theme) cảm xúc.
-5. Gọi Gemini sinh quote mới theo prompt đã cấu hình sẵn (có ví dụ mẫu, danh sách từ/chủ đề cấm, kiểu mở đầu cấm).
-6. Gọi Gemini chấm điểm quote — nếu điểm < 8 thì dừng.
-7. Gọi Gemini kiểm tra trùng ý tưởng với 20 quote gần nhất — nếu SIMILAR thì dừng.
-8. Kiểm tra validation cuối: độ dài, từ cấm, chủ đề cấm, kiểu mở đầu cấm, trùng lặp văn bản.
-9. Nếu qua hết → gửi quote qua Telegram Bot API và lưu lại vào `used_messages.json`.
-
-State được lưu bằng JSON:
-- `used_messages.json` — lịch sử quote đã gửi (tối đa 1000 quote gần nhất), dùng để chống trùng
-
-## Cài đặt
-
-### 1. Yêu cầu
-
-- Python 3.x
-- Tài khoản Telegram Bot (tạo qua [@BotFather](https://t.me/BotFather))
-- Google Gemini API key ([Google AI Studio](https://aistudio.google.com/))
-
-### 2. Cài dependencies
-
+To run locally instead of via Actions:
 ```bash
-pip install -r requirements.txt
-```
-
-Dependencies: `requests`, `google-genai`
-
-### 3. Biến môi trường
-
-| Biến | Mô tả |
-|---|---|
-| `BOT_TOKEN` | Token của Telegram bot (lấy từ BotFather) |
-| `CHAT_ID` | ID của chat/kênh sẽ nhận quote |
-| `GEMINI_API_KEY` | API key của Google Gemini |
-
-Trên GitHub, thêm các biến này vào **Settings → Secrets and variables → Actions**.
-
-### 4. Chạy thử local
-
-```bash
-export BOT_TOKEN="xxx"
-export CHAT_ID="xxx"
-export GEMINI_API_KEY="xxx"
 python main.py
 ```
 
-### 5. Tự động hóa bằng GitHub Actions
+**Rotating themes:** family, growing up, being a man, loneliness, life pressure, kindness, time, youth, quiet perseverance, peace, healing, loss, the journey of growing up, responsibility, late-night thoughts.
 
-Workflow chạy theo cron schedule đã cấu hình trong `.github/workflows/`. Không cần server, GitHub Actions sẽ tự động thực thi `main.py` theo lịch.
+## Roadmap
+- [ ] Habit tracking
+- [ ] Reminders
+- [ ] AI companion mode
+- [ ] Personal assistant layer
 
-## Theme đang sử dụng
+> Note: this project is currently designed for single-user, personal use. Since it relies on GitHub Actions cron instead of a real-time server, it's best suited for forking/self-hosting rather than scaling into a public multi-user bot (which would need a VPS or a webhook/polling server running 24/7).
 
-Bot sẽ random một trong các vibe:
-
-`gia đình` · `trưởng thành` · `đàn ông` · `cô đơn` · `áp lực cuộc sống` · `sự tử tế` · `thời gian` · `tuổi trẻ` · `sự cố gắng âm thầm` · `bình yên` · `chữa lành` · `mất mát` · `hành trình lớn lên` · `trách nhiệm` · `đêm khuya và suy nghĩ`
-
-## Tech Stack
-
-- Python
-- GitHub Actions (scheduler + runtime)
-- Telegram Bot API
-- Google Gemini API (`gemini-3.1-flash-lite`)
-- JSON state tracking
-
-## Mục tiêu dự án
-
-- Tạo một "daily mental reset" nhẹ mỗi ngày
-- Nội dung ngắn, không spam
-- Hoạt động hoàn toàn miễn phí
-- Tối giản nhưng đủ ổn định để chạy lâu dài
-- Dễ mở rộng thêm: habit tracking, reminder, AI companion, personal assistant layer
-
-## Lưu ý
-
-Bot hiện được thiết kế theo hướng **cá nhân (single-user)**.
-
-Do hệ thống dùng GitHub Actions cron thay vì server real-time, project hiện phù hợp để:
-- fork dùng riêng
-- self-host cá nhân
-- automation cá nhân
-
-Chưa phù hợp để scale thành public multi-user bot nếu không có VPS hoặc webhook/polling server chạy 24/7.
-
-## Inspiration
-
-Một phần vibe nội dung được lấy cảm hứng từ kiểu viết của các caption trưởng thành đời thực, các page chữa lành, và phong cách của các tác giả/content creator như Nghĩ Hữu Trí, Huỳnh Duy Khương, AYP mindset style.
-
-> Bot không copy nội dung gốc, chỉ tham khảo tinh thần và tone viết.
+## License
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
